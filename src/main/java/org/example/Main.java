@@ -1,171 +1,142 @@
 package org.example;
 
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
-import java.sql.Driver;
 import java.time.Duration;
 import java.util.List;
-import java.util.function.Function;
 
-import static java.lang.Thread.sleep;
-
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
-    public static void main(String[] args) throws InterruptedException, IOException {
-        System.setProperty("webdriver.chrome.driver", "/Users/rokascebatorius/Downloads/chromedriver-mac-arm642/chromedriver");
+    ChromeDriver registrationDriver = new ChromeDriver();
+    ChromeDriver data1Driver = new ChromeDriver();
+    ChromeDriver data2Driver = new ChromeDriver();
+    String name = "Rokas";
+    String lastname = "Rokas";
+    String email = "Rokas@Rokas.com";
+    String pasw = "Rokas1234";
 
-        // Create ChromeOptions object
-        ChromeOptions options = new ChromeOptions();
-
-        // Set window size
-        options.addArguments("--window-size=2320,1080");
-
-        // Initialize ChromeDriver with ChromeOptions
-        WebDriver driver = new ChromeDriver(options);
-
+    @Before
+    public void lab4RegisterMethod() {
+        ChromeDriver driver = this.registrationDriver;
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(1));
+        driver.manage().window().maximize();
         driver.get("https://demowebshop.tricentis.com/");
+        driver.findElement(By.className("ico-login")).click();
+        wait.until(ExpectedConditions.elementToBeClickable(By.className("register-button"))).click();
 
-//        // Find the "Log in" link by XPath
-//        WebElement loginLink = driver.findElement(By.xpath("//a[@class='ico-login']"));
-//
-//        // Click on the "Log in" link
-//        loginLink.click();
-//
-//        // Find the "Register" button by XPath
-//        WebElement registerButton = driver.findElement(By.xpath("//input[@class='button-1 register-button']"));
-//
-//        // Click on the "Register" button
-//        registerButton.click();
-//
-//        // Fill in the registration form
-//        WebElement firstNameInput = driver.findElement(By.id("FirstName"));
-//        firstNameInput.sendKeys("John");
-//
-//        WebElement lastNameInput = driver.findElement(By.id("LastName"));
-//        lastNameInput.sendKeys("Doe");
-//
-//        WebElement emailInput = driver.findElement(By.id("Email"));
-//        emailInput.sendKeys("johndoe3333@example.com");
-//
-//        WebElement passwordInput = driver.findElement(By.id("Password"));
-//        passwordInput.sendKeys("password");
-//
-//        WebElement confirmPasswordInput = driver.findElement(By.id("ConfirmPassword"));
-//        confirmPasswordInput.sendKeys("password");
-//
-//        // Select gender
-//        WebElement maleRadio = driver.findElement(By.id("gender-male"));
-//        maleRadio.click(); // Assuming you want to select Male
-//
-//        // Click on the register button
-//        WebElement registerButton2 = driver.findElement(By.id("register-button"));
-//        registerButton2.click();
-//
-//        // Find the "Continue" button and click it
-//        WebElement continueButton = driver.findElement(By.cssSelector("input.button-1.register-continue-button"));
-//        continueButton.click();
+        driver.findElement(By.id("FirstName")).sendKeys(this.name);
+        driver.findElement(By.id("LastName")).sendKeys(this.lastname);
+        driver.findElement(By.id("Email")).sendKeys(this.email);
+        driver.findElement(By.id("Password")).sendKeys(this.pasw);
+        driver.findElement(By.id("ConfirmPassword")).sendKeys(this.pasw);
+        driver.findElement(By.id("gender-male")).click();
+        wait.until(ExpectedConditions.elementToBeClickable(By.id("register-button"))).click();
+        try {
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.className("validation-summary-errors")));
+            System.out.println("Email already exist!");
+        } catch (Exception e) {
+            // Handle exception if the error div is found or if there is any other issue
+            wait.until(ExpectedConditions.elementToBeClickable(By.className("register-continue-button"))).click();
+            wait.until(ExpectedConditions.elementToBeClickable(By.className("ico-logout"))).click();
 
-        driver.quit();
-
-        test();
-
+        }
+    }
+    @Test
+    public void testData1(){
+        lab4test(this.data1Driver, "data1.txt");
+        lab4test(this.data2Driver, "data2.txt");
     }
 
-    public static void test() throws IOException, InterruptedException {
-        System.setProperty("webdriver.chrome.driver", "/Users/rokascebatorius/Downloads/chromedriver-mac-arm642/chromedriver");
-
-        // Create ChromeOptions object
-        ChromeOptions options = new ChromeOptions();
-
-        // Set window size
-        options.addArguments("--window-size=2320,1080");
-
-        // Initialize ChromeDriver with ChromeOptions
-        WebDriver driver = new ChromeDriver(options);
-
+    @After
+    public void quitDrivers(){
+        if (this.registrationDriver != null) {
+            this.registrationDriver.quit();
+        }
+        if (this.data1Driver != null) {
+            this.data1Driver.quit();
+        }
+        if (this.data2Driver != null) {
+            this.data2Driver.quit();
+        }
+    }
+    public void lab4test(ChromeDriver driver, String dataFile) {
+        driver.manage().window().maximize();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+        JavascriptExecutor js = driver;
         driver.get("https://demowebshop.tricentis.com/");
+        driver.findElement(By.className("ico-login")).click();
 
-        // Find the "Log in" link by XPath
-        WebElement loginLink = driver.findElement(By.xpath("//a[@class='ico-login']"));
-
-        // Click on the "Log in" link
-        loginLink.click();
-
-        // Find the email and password input fields and input values
+        // 3. Užpildyti 'Email:', 'Password:' ir spausti 'Log in'
         WebElement emailField = driver.findElement(By.id("Email"));
-        emailField.sendKeys("johndoe3333@example.com");
+        emailField.sendKeys(email);
 
         WebElement passwordField = driver.findElement(By.id("Password"));
-        passwordField.sendKeys("password");
+        passwordField.sendKeys(pasw);
+        driver.findElement(By.cssSelector("input.button-1.login-button")).click();
+        driver.findElement(By.linkText("Digital downloads")).click();
 
-        // Find the "Remember me" checkbox and click it if needed
-        WebElement rememberMeCheckbox = driver.findElement(By.id("RememberMe"));
-        if (!rememberMeCheckbox.isSelected()) {
-            rememberMeCheckbox.click();
-        }
-
-        // Submit the form by clicking the "Log in" button
-        WebElement loginButton = driver.findElement(By.cssSelector("input.button-1.login-button"));
-        loginButton.click();
-
-        // Find the link by its text and click it
-        WebElement digitalDownloadsLink = driver.findElement(By.linkText("Digital downloads"));
-        digitalDownloadsLink.click();
-
-        // Nurodome failo, iš kurio skaitysime prekių pavadinimus, kelias
-        String filePath = "src/data1.txt";
-
-        // Nuskaitome failą
-        BufferedReader reader = new BufferedReader(new FileReader(filePath));
-        String line;
-
-        // Skaitykite failą eilutė po eilutės
-        while ((line = reader.readLine()) != null) {
-            // Ieškome prekės pagal jos pavadinimą
-                WebElement product = driver.findElement(By.xpath("//h2[@class='product-title']/a[contains(text(), '" + line + "')]"));
-
-            // Jei prekė rasta, paspaudžiame mygtuką "Add to cart"
-            if (product != null) {
-                WebElement addToCartButton = product.findElement(By.xpath("../../div[@class='add-info']/div[@class='buttons']/input[@value='Add to cart']"));
-                addToCartButton.click();
-                System.out.println("Added " + line + " to cart.");
-            } else {
-                System.out.println("Product " + line + " not found.");
+        //    skaitymas iš failo
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader("src/" + dataFile));
+            String productName;
+            while ((productName = reader.readLine()) != null) {
+                driver.findElement(By.xpath("//a[contains(text(),'" + productName + "')]/parent::h2/following::div[@class='add-info']/descendant::input")).click();
+                System.out.println(productName);
             }
+            reader.close();
+        } catch (Exception e) {
+            System.out.println("Did not find the file");
+            System.out.print("EXCEPTION: " + e);
+//      throw e;
+        }
+        driver.findElement(By.linkText("Shopping cart")).click();
+        driver.findElement(By.id("termsofservice")).click();
+        driver.findElement(By.id("checkout")).click();
+        boolean foundOtherOption = false;
+
+        try {
+            WebElement addressDropdown = driver.findElement(By.className("address-select"));
+            Select select = new Select(addressDropdown);
+            List<WebElement> options = select.getOptions();
+            for (WebElement option : options) {
+                if (!option.getText().equals("New Address")) {
+                    foundOtherOption = true;
+                    option.click();
+                    break;
+                }
+            }
+        } catch (Exception ex) {
         }
 
-        // Paspauskite ant "Shopping cart" žymės
-        WebElement shoppingCartLabel = driver.findElement(By.xpath("//span[@class='cart-label']"));
-        shoppingCartLabel.click();
+// Check the flag value to determine if any option other than "New Address" was found
+        if (!foundOtherOption) {
+            Select countryDropdown = new Select(driver.findElement(By.id("BillingNewAddress_CountryId")));
+            countryDropdown.selectByVisibleText("Lithuania");
+            driver.findElement(By.id("BillingNewAddress_City")).sendKeys("Vilnius");
+            driver.findElement(By.id("BillingNewAddress_Address1")).sendKeys("Str 1");
+            driver.findElement(By.id("BillingNewAddress_ZipPostalCode")).sendKeys("06277");
+            driver.findElement(By.id("BillingNewAddress_PhoneNumber")).sendKeys("37061234567");
+        }
 
-        // Paspauskite mygtuką, kad sutiktumėte su sąlygomis
-        WebElement agreeCheckbox = driver.findElement(By.id("termsofservice"));
-        agreeCheckbox.click();
+        wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("input.button-1.new-address-next-step-button"))).click();
+        js.executeScript("window.scrollBy(0,250)", "");
+        wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("input.button-1.payment-method-next-step-button"))).click();
+        wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("input.button-1.payment-info-next-step-button"))).click();
+        js.executeScript("window.scrollBy(0,250)", "");
+        wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("input.button-1.confirm-order-next-step-button"))).click();
 
-        // Palaukite truputį, kad naršyklė galėtų atnaujinti būseną
-        Thread.sleep(1000);
-
-        // Paspauskite mygtuką "Checkout"
-        WebElement checkoutButton = driver.findElement(By.id("checkout"));
-        checkoutButton.click();
-
-
+        String successMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@class='title']/strong[text()]"))).getText();
+        Assert.assertEquals(true, successMessage.contains("successfully"));
     }
 }
-
-//docker pull jenkins/jenkins
-//docker run -itd -p 8080:8080 -p 50000:50000 --name jenkins -v /Users/rokascebatorius:/var/jenkins_home jenkins/jenkins
